@@ -4,7 +4,7 @@ const HeroSection = () => {
     <div className="relative">
       {/* Background Image */}
       <img
-        className="lg:w-full lg:h-[80vh]  md:h-[100%] md:mb-0 mb-50  md:object-cover "
+        className="lg:w-full lg:h-[80vh]  md:h-[100%] md:mb-0 mb-60  md:object-cover "
         src="https://i.ibb.co/hx7PpVYt/Red-White-Minimalist-Blood-Donation-Health-Banner-1.jpg"
         alt="Blood Donating image"
       />
