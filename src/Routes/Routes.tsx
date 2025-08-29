@@ -8,6 +8,8 @@ import BloodRequest from "../Pages/BloodRequest";
 import DonorDashboard from "../Pages/DonorDashboard";
 import RecipientDashboard from "../Pages/RecipientDashboard";
 import AdminDashboard from "../Pages/AdminDashboard";
+import Register from "../Pages/Register";
+import Login from "../Pages/Login";
 
 export const routes = createBrowserRouter([
   {
@@ -45,6 +47,14 @@ export const routes = createBrowserRouter([
       {
         path: "/dashboard/admin",
         element: <AdminDashboard />,
+      },
+      {
+        path: "/register",
+        element: <Register />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
       },
     ],
   },

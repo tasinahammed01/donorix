@@ -14,6 +14,7 @@ const Header = () => {
     { label: "Donor Dashboard", to: "/dashboard/donor" },
     { label: "Recipient Dashboard", to: "/dashboard/recipient" },
     { label: "Admin Dashboard", to: "/dashboard/admin" },
+    { label: "Login/Register", to: "/register" },
   ];
 
   return (
