@@ -1,12 +1,19 @@
 import CountUp from "react-countup";
+import { motion } from "framer-motion";
+
 
 const Counter = () => {
   return (
     <section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-8 md:px-16 lg:px-20">
       {/* Section Title */}
-      <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-center mb-10 sm:mb-14 lg:mb-16">
-        Visit Our <span className="text-red-600">Camps</span>
-      </h1>
+      <motion.h2
+        className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center mb-12"
+        initial={{ opacity: 0, y: -20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        Visit Our  <span className="text-red-600">Camps</span>
+      </motion.h2>
 
       {/* Counter Cards */}
       <div className="grid grid-cols-1 xs:grid-cols-2  md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
