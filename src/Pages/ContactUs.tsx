@@ -54,7 +54,7 @@ const ContactUs = () => {
         </div>
 
         {/* Info Section */}
-        <div className="space-y-10">
+        <div className="space-y-10 mx-auto">
           {/* Knowledgebase */}
           <div>
             <h4 className="font-semibold text-lg text-white">Knowledgebase</h4>
