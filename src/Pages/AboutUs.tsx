@@ -35,7 +35,7 @@ const AboutUs = () => {
             Our leading, strong & creative{" "}
             <span className="text-red-600">Volunteers</span>
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed mb-6">
+          <p className="text-gray-300 text-sm sm:text-base md:text-lg leading-relaxed mb-6">
             Our blood donation camp volunteers are the heart and soul of our
             mission to save lives. Committed, compassionate, and
             community-driven, they come from all walks of life to contribute
