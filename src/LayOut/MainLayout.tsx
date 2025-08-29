@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 import Footer from "../SharedComponents/Footer";
 import Header from "../SharedComponents/Header";
 

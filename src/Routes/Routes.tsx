@@ -1,10 +1,12 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../Pages/HomePage";
 import MainLayout from "../LayOut/MainLayout";
 import AboutUs from "../Pages/AboutUs";
 import ContactUs from "../Pages/ContactUs";
 import Register from "../Pages/Register";
 import Login from "../Pages/Login";
+import TopDonors from "../Pages/TopDonors";
+import BloodRequest from "../Pages/BloodRequest";
 
 export const routes = createBrowserRouter([
   {
@@ -14,6 +16,10 @@ export const routes = createBrowserRouter([
       {
         path: "/",
         element: <HomePage />,
+      },
+      {
+        path: "/topDonor",
+        element: <TopDonors />,
       },
       {
         path: "/contact",
@@ -30,6 +36,10 @@ export const routes = createBrowserRouter([
       {
         path: "/login",
         element: <Login />,
+      },
+      {
+        path: "/requests",
+        element: <BloodRequest />,
       },
     ],
   },
