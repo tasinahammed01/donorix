@@ -21,7 +21,7 @@ const Header = () => {
         <div>
           <img
             className="w-32 h-16 object-contain"
-            src="https://i.ibb.co/TxYkbn9t/800w-RQMq-S6-Y56w-removebg-preview.png"
+            src="https://i.ibb.co.com/HD77xCgw/Screenshot-617-removebg-preview.png"
             alt="logo"
           />
         </div>
