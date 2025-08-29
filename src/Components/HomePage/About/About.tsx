@@ -1,5 +1,6 @@
 import { IoIosReturnRight } from "react-icons/io";
 import { motion } from "framer-motion";
+import { Link } from "react-router";
 
 export default function About() {
   return (
@@ -35,7 +36,7 @@ export default function About() {
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
         >
-          Since our inception set out in 2012, BloodTime has successfully
+          Since our inception set out in 2020, Donorix has successfully
           contributed in blood donation to over 500+ patients. Sharing awareness
           to young generation the usefulness of donating blood for others to
           save countless lives.
@@ -75,6 +76,12 @@ export default function About() {
             </motion.div>
           ))}
         </motion.div>
+
+        <Link to="/about">
+          <button className="mt-6 lg:px-6 md:px-4 px-2 py-3 bg-red-600 text-white rounded-full md:text-lg font-semibold shadow-md hover:bg-red-700 transition duration-300">
+            Join Our Team
+          </button>
+        </Link>
       </motion.div>
 
       {/* Right Image */}

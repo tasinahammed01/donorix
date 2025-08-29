@@ -10,7 +10,7 @@ const Header = () => {
     { label: "Top Donor", to: "/topDonor" },
     { label: "Contact Us", to: "/contact" },
     { label: "About Us", to: "/about" },
-    { label: "Login/Register", to: "/login" },
+    { label: "Login/Register", to: "/register" },
   ];
 
   return (
@@ -19,11 +19,13 @@ const Header = () => {
       <div className="flex items-center justify-between px-5">
         {/* Logo */}
         <div>
-          <img
-            className="w-32 h-16 object-contain"
-            src="https://i.ibb.co.com/HD77xCgw/Screenshot-617-removebg-preview.png"
-            alt="logo"
-          />
+          <Link to="/">
+            <img
+              className="w-32 h-16 object-contain"
+              src="https://i.ibb.co.com/HD77xCgw/Screenshot-617-removebg-preview.png"
+              alt="logo"
+            />
+          </Link>
         </div>
 
         {/* Desktop Navigation */}
