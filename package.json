@@ -12,6 +12,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.11.0",
+    "dotenv": "^17.2.1",
     "framer-motion": "^12.23.7",
     "react": "^19.1.0",
     "react-countup": "^6.5.3",

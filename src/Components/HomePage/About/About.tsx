@@ -1,6 +1,6 @@
 import { IoIosReturnRight } from "react-icons/io";
 import { motion } from "framer-motion";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 export default function About() {
   return (

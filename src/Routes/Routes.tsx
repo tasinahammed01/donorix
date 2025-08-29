@@ -3,10 +3,11 @@ import HomePage from "../Pages/HomePage";
 import MainLayout from "../LayOut/MainLayout";
 import AboutUs from "../Pages/AboutUs";
 import ContactUs from "../Pages/ContactUs";
-import Register from "../Pages/Register";
-import Login from "../Pages/Login";
 import TopDonors from "../Pages/TopDonors";
 import BloodRequest from "../Pages/BloodRequest";
+import DonorDashboard from "../Pages/DonorDashboard";
+import RecipientDashboard from "../Pages/RecipientDashboard";
+import AdminDashboard from "../Pages/AdminDashboard";
 
 export const routes = createBrowserRouter([
   {
@@ -30,16 +31,20 @@ export const routes = createBrowserRouter([
         element: <AboutUs />,
       },
       {
-        path: "/register",
-        element: <Register />,
-      },
-      {
-        path: "/login",
-        element: <Login />,
-      },
-      {
         path: "/requests",
         element: <BloodRequest />,
+      },
+      {
+        path: "/dashboard/donor",
+        element: <DonorDashboard />,
+      },
+      {
+        path: "/dashboard/recipient",
+        element: <RecipientDashboard />,
+      },
+      {
+        path: "/dashboard/admin",
+        element: <AdminDashboard />,
       },
     ],
   },
