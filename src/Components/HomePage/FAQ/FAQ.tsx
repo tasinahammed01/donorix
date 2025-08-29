@@ -54,7 +54,7 @@ const FAQ = () => {
         <div className="w-full lg:w-1/2 space-y-3">
           {faqs.map((faq, index) => (
             <div
-              className="collapse collapse-arrow bg-base-100 border border-base-300"
+              className="w-full md:w-[70%] collapse collapse-arrow bg-base-100 border border-base-300"
               key={index}
             >
               <input
