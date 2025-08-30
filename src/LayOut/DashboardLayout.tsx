@@ -17,7 +17,12 @@ const roleConfig = {
   donor: {
     dashboardLabel: "Donor Dashboard",
     dashboardUrl: "/dashboard/donor",
-    links: [{ label: "My Donations", to: "/dashboard/donor" }],
+    links: [
+      { label: "My Donations History", to: "/dashboard/donor/history" },
+      { label: "Events", to: "/dashboard/donor/events" },
+      { label: "Notifications", to: "/dashboard/donor/notifications" },
+      { label: "Achievements", to: "/dashboard/donor/achievements" },
+    ],
   },
   recipient: {
     dashboardLabel: "Recipient Dashboard",
@@ -97,7 +102,7 @@ const DashboardLayout = () => {
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full text-left p-2 rounded bg-red-600 mt-2"
+            className="w-full text-left p-2 rounded bg-red-600 mt-2 cursor-pointer hover:bg-red-700"
           >
             Logout
           </button>

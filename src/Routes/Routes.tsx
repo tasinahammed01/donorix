@@ -18,6 +18,12 @@ import UserList from "../Components/AdminDashboard/UserList";
 import DonorList from "../Components/AdminDashboard/DonorList";
 import RecipientList from "../Components/AdminDashboard/RecipentList";
 import Profile from "../Components/AdminDashboard/Profile";
+import PersonalProfile from "../Components/DonorDashboard/PersonalProfile";
+import DonationHistory from "../Components/DonorDashboard/DonationHistory";
+import UpcomingEvents from "../Components/DonorDashboard/UpcomingEvents";
+import Notifications from "../Components/DonorDashboard/Notifications";
+import Achievements from "../Components/DonorDashboard/Achievements";
+import AccountSettings from "../Components/DonorDashboard/AccountSettings";
 
 export const routes = createBrowserRouter([
   {
@@ -41,7 +47,11 @@ export const routes = createBrowserRouter([
         ),
         children: [
           { path: "", element: <DonorDashboard /> },
-          { path: "profile", element: <Profile /> },
+          { path: "profile", element: <PersonalProfile /> },
+          { path: "history", element: <DonationHistory /> },
+          { path: "events", element: <UpcomingEvents /> },
+          { path: "notifications", element: <Notifications /> },
+          { path: "achievements", element: <Achievements /> },
         ],
       },
 

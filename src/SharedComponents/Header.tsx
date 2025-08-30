@@ -41,7 +41,6 @@ const Header = () => {
       const links: { label: string; to: string; onClick?: () => void }[] = [
         { label: "Home", to: "/" },
         { label: "Top Donor", to: "/topDonor" },
-        { label: "Requests", to: "/requests" },
         { label: "Contact Us", to: "/contact" },
         { label: "About Us", to: "/about" },
       ];
