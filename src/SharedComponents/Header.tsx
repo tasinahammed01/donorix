@@ -87,7 +87,7 @@ const Header = () => {
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-8 font-bold">
+        <div className="hidden lg:flex items-center gap-8 font-bold">
           {navLinks.map((link, index) => (
             <Link
               key={index}
@@ -100,17 +100,17 @@ const Header = () => {
           ))}
         </div>
 
-        {/* Mobile Toggle Button */}
-        <div className="md:hidden">
+        {/* Tablet Toggle Button */}
+        <div className="lg:hidden">
           <button onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <HiX size={28} /> : <HiMenu size={28} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Tablet Menu */}
       {menuOpen && (
-        <div className="md:hidden absolute left-0 w-full h-screen bg-black flex flex-col items-center justify-center gap-10 font-bold text-lg">
+        <div className="lg:hidden absolute left-0 w-full h-screen bg-black flex flex-col items-center justify-center gap-10 font-bold text-lg">
           {navLinks.map((link, index) => (
             <Link
               key={index}
