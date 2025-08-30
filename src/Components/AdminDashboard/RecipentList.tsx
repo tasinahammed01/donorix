@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 interface Recipient {
   _id: string;
   name: string;
   email: string;
   role: string;
+  status?: string; // "active" or "suspended"
   createdAt: string;
 }
 
@@ -19,8 +21,7 @@ const RecipientList = () => {
     const fetchRecipients = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5000/users"); // Replace with your API
-        // Filter recipients only
+        const response = await axios.get("http://localhost:5000/users");
         const recipientOnly = response.data.filter(
           (user: Recipient) => user.role.toLowerCase() === "recipient"
         );
@@ -35,13 +36,81 @@ const RecipientList = () => {
   }, []);
 
   const handleDelete = async (id: string) => {
-    try {
-      if (window.confirm("Are you sure you want to delete this recipient?")) {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This recipient will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
         await axios.delete(`http://localhost:5000/users/${id}`);
         setRecipients(recipients.filter((recipient) => recipient._id !== id));
+        Swal.fire("Deleted!", "Recipient has been deleted.", "success");
+      } catch (err) {
+        Swal.fire("Error!", "Failed to delete recipient.", "error");
       }
-    } catch (err) {
-      alert("Delete failed!");
+    }
+  };
+
+  const handleSuspend = async (
+    id: string,
+    currentStatus: string | undefined
+  ) => {
+    const action = currentStatus === "suspended" ? "unsuspend" : "suspend";
+
+    const result = await Swal.fire({
+      title: `${action === "suspend" ? "Suspend" : "Unsuspend"} recipient?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: action === "suspend" ? "#facc15" : "#22c55e",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: action === "suspend" ? "Suspend" : "Unsuspend",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await axios.patch(
+          `http://localhost:5000/users/${id}/suspend`,
+          { action }
+        );
+        setRecipients(
+          recipients.map((user) =>
+            user._id === id
+              ? {
+                  ...user,
+                  status: action === "suspend" ? "suspended" : "active",
+                }
+              : user
+          )
+        );
+        Swal.fire("Success!", response.data.message, "success");
+      } catch {
+        Swal.fire("Error!", "Failed to update status.", "error");
+      }
+    }
+  };
+
+  const handleRoleChange = async (id: string, newRole: string) => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:5000/users/${id}/role`,
+        {
+          role: newRole,
+        }
+      );
+      setRecipients(
+        recipients.map((user) =>
+          user._id === id ? { ...user, role: newRole } : user
+        )
+      );
+      Swal.fire("Success!", response.data.message, "success");
+    } catch {
+      Swal.fire("Error!", "Failed to update role.", "error");
     }
   };
 
@@ -97,6 +166,12 @@ const RecipientList = () => {
                 Email
               </th>
               <th className="text-left py-2 px-3 border-b border-gray-700">
+                Role
+              </th>
+              <th className="text-left py-2 px-3 border-b border-gray-700">
+                Status
+              </th>
+              <th className="text-left py-2 px-3 border-b border-gray-700">
                 Created At
               </th>
               <th className="text-left py-2 px-3 border-b border-gray-700">
@@ -119,12 +194,35 @@ const RecipientList = () => {
                 <td className="py-2 px-3 border-b border-gray-700">
                   {recipient.email}
                 </td>
+                <td className="py-2 px-3 border-b border-gray-700 capitalize">
+                  <select
+                    value={recipient.role}
+                    onChange={(e) =>
+                      handleRoleChange(recipient._id, e.target.value)
+                    }
+                    className="bg-gray-700 text-white p-1 rounded"
+                  >
+                    <option value="recipient">Recipient</option>
+                  </select>
+                </td>
+                <td className="py-2 px-3 border-b border-gray-700 capitalize">
+                  {recipient.status || "active"}
+                </td>
                 <td className="py-2 px-3 border-b border-gray-700">
                   {new Date(recipient.createdAt).toLocaleDateString()}
                 </td>
                 <td className="py-2 px-3 border-b border-gray-700 flex flex-col sm:flex-row gap-2">
-                  <button className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    Edit
+                  <button
+                    onClick={() =>
+                      handleSuspend(recipient._id, recipient.status)
+                    }
+                    className={`px-3 py-1 rounded text-white ${
+                      recipient.status === "suspended"
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-yellow-600 hover:bg-yellow-700"
+                    }`}
+                  >
+                    {recipient.status === "suspended" ? "Unsuspend" : "Suspend"}
                   </button>
                   <button
                     onClick={() => handleDelete(recipient._id)}

@@ -36,7 +36,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Fetch user details from backend
   const fetchUserDetails = async (firebaseUser: any) => {
     try {
-      const response = await fetch(`http://localhost:5000/users?email=${firebaseUser.email}`);
+      const response = await fetch(`http://localhost:5000/users?email=${firebaseUser?.email}`);
       if (response.ok) {
         const users = await response.json();
         const userData = users.find((u: any) => u.email === firebaseUser.email);

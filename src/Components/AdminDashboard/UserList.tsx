@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 interface User {
   _id: string;
   name: string;
   email: string;
   role: string;
+  status?: string; // "active" or "suspended"
   createdAt: string;
 }
 
@@ -20,7 +22,7 @@ const UserList = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5000/users"); // Replace with your API
+        const response = await axios.get("http://localhost:5000/users");
         setUsers(response.data);
       } catch (err: any) {
         setError(err.message || "Something went wrong!");
@@ -32,13 +34,64 @@ const UserList = () => {
   }, []);
 
   const handleDelete = async (id: string) => {
-    try {
-      if (window.confirm("Are you sure you want to delete this user?")) {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
         await axios.delete(`http://localhost:5000/users/${id}`);
         setUsers(users.filter((user) => user._id !== id));
+        Swal.fire("Deleted!", "User has been deleted.", "success");
+      } catch (err) {
+        Swal.fire("Error!", "Failed to delete user.", "error");
       }
-    } catch (err) {
-      alert("Delete failed!");
+    }
+  };
+
+  const handleSuspend = async (
+    id: string,
+    currentStatus: string | undefined
+  ) => {
+    const action = currentStatus === "suspended" ? "unsuspend" : "suspend";
+    try {
+      const response = await axios.patch(
+        `http://localhost:5000/users/${id}/suspend`,
+        { action }
+      );
+      setUsers(
+        users.map((user) =>
+          user._id === id
+            ? { ...user, status: action === "suspend" ? "suspended" : "active" }
+            : user
+        )
+      );
+      Swal.fire("Success!", response.data.message, "success");
+    } catch {
+      Swal.fire("Error!", "Suspend/Unsuspend failed!", "error");
+    }
+  };
+
+  const handleRoleChange = async (id: string, newRole: string) => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:5000/users/${id}/role`,
+        { role: newRole }
+      );
+      setUsers(
+        users.map((user) =>
+          user._id === id ? { ...user, role: newRole } : user
+        )
+      );
+      Swal.fire("Success!", response.data.message, "success");
+    } catch {
+      Swal.fire("Error!", "Role update failed!", "error");
     }
   };
 
@@ -109,6 +162,9 @@ const UserList = () => {
                 Role
               </th>
               <th className="text-left py-2 px-3 border-b border-gray-700">
+                Status
+              </th>
+              <th className="text-left py-2 px-3 border-b border-gray-700">
                 Created At
               </th>
               <th className="text-left py-2 px-3 border-b border-gray-700">
@@ -132,14 +188,32 @@ const UserList = () => {
                   {user.email}
                 </td>
                 <td className="py-2 px-3 border-b border-gray-700 capitalize">
-                  {user.role}
+                  <select
+                    value={user.role}
+                    onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                    className="bg-gray-700 text-white p-1 rounded"
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="donor">Donor</option>
+                    <option value="recipient">Recipient</option>
+                  </select>
+                </td>
+                <td className="py-2 px-3 border-b border-gray-700 capitalize">
+                  {user.status || "active"}
                 </td>
                 <td className="py-2 px-3 border-b border-gray-700">
                   {new Date(user.createdAt).toLocaleDateString()}
                 </td>
                 <td className="py-2 px-3 border-b border-gray-700 flex flex-col sm:flex-row gap-2">
-                  <button className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    Edit
+                  <button
+                    onClick={() => handleSuspend(user._id, user.status)}
+                    className={`px-3 py-1 rounded text-white ${
+                      user.status === "suspended"
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-yellow-600 hover:bg-yellow-700"
+                    }`}
+                  >
+                    {user.status === "suspended" ? "Unsuspend" : "Suspend"}
                   </button>
                   <button
                     onClick={() => handleDelete(user._id)}

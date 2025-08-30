@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 interface Donor {
   _id: string;
   name: string;
   email: string;
   role: string;
+  status?: "active" | "suspended";
   createdAt: string;
 }
 
@@ -19,8 +21,7 @@ const DonorList = () => {
     const fetchDonors = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5000/users"); // Replace with your API
-        // Filter donors only
+        const response = await axios.get("http://localhost:5000/users");
         const donorOnly = response.data.filter(
           (user: Donor) => user.role.toLowerCase() === "donor"
         );
@@ -35,13 +36,61 @@ const DonorList = () => {
   }, []);
 
   const handleDelete = async (id: string) => {
-    try {
-      if (window.confirm("Are you sure you want to delete this donor?")) {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
         await axios.delete(`http://localhost:5000/users/${id}`);
         setDonors(donors.filter((donor) => donor._id !== id));
+        Swal.fire("Deleted!", "Donor has been deleted.", "success");
+      } catch (err) {
+        Swal.fire("Error!", "Failed to delete donor.", "error");
       }
+    }
+  };
+
+  const handleSuspend = async (id: string, action: "suspend" | "unsuspend") => {
+    try {
+      await axios.patch(`http://localhost:5000/users/${id}/suspend`, {
+        action,
+      });
+      setDonors((prev) =>
+        prev.map((donor) =>
+          donor._id === id
+            ? {
+                ...donor,
+                status: action === "suspend" ? "suspended" : "active",
+              }
+            : donor
+        )
+      );
+      Swal.fire(
+        "Success!",
+        `Donor has been ${action === "suspend" ? "suspended" : "unsuspended"}.`,
+        "success"
+      );
     } catch (err) {
-      alert("Delete failed!");
+      Swal.fire("Error!", "Failed to update donor status.", "error");
+    }
+  };
+
+  const handleRoleChange = async (id: string, role: string) => {
+    try {
+      await axios.patch(`http://localhost:5000/users/${id}/role`, { role });
+      setDonors((prev) =>
+        prev.map((donor) => (donor._id === id ? { ...donor, role } : donor))
+      );
+      Swal.fire("Success!", `Role updated to ${role}`, "success");
+    } catch (err) {
+      Swal.fire("Error!", "Failed to update role.", "error");
     }
   };
 
@@ -97,6 +146,12 @@ const DonorList = () => {
                 Email
               </th>
               <th className="text-left py-2 px-3 border-b border-gray-700">
+                Role
+              </th>
+              <th className="text-left py-2 px-3 border-b border-gray-700">
+                Status
+              </th>
+              <th className="text-left py-2 px-3 border-b border-gray-700">
                 Created At
               </th>
               <th className="text-left py-2 px-3 border-b border-gray-700">
@@ -120,11 +175,39 @@ const DonorList = () => {
                   {donor.email}
                 </td>
                 <td className="py-2 px-3 border-b border-gray-700">
+                  <select
+                    value={donor.role}
+                    onChange={(e) =>
+                      handleRoleChange(donor._id, e.target.value)
+                    }
+                    className="bg-gray-700 text-white p-1 rounded focus:outline-none"
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="donor">Donor</option>
+                    <option value="recipient">Recipient</option>
+                  </select>
+                </td>
+                <td className="py-2 px-3 border-b border-gray-700 capitalize">
+                  {donor.status || "active"}
+                </td>
+                <td className="py-2 px-3 border-b border-gray-700">
                   {new Date(donor.createdAt).toLocaleDateString()}
                 </td>
                 <td className="py-2 px-3 border-b border-gray-700 flex flex-col sm:flex-row gap-2">
-                  <button className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    Edit
+                  <button
+                    onClick={() =>
+                      handleSuspend(
+                        donor._id,
+                        donor.status === "suspended" ? "unsuspend" : "suspend"
+                      )
+                    }
+                    className={`px-3 py-1 rounded text-white ${
+                      donor.status === "suspended"
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-yellow-600 hover:bg-yellow-700"
+                    }`}
+                  >
+                    {donor.status === "suspended" ? "Unsuspend" : "Suspend"}
                   </button>
                   <button
                     onClick={() => handleDelete(donor._id)}
