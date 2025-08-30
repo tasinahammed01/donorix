@@ -4,17 +4,19 @@ import MainLayout from "../LayOut/MainLayout";
 import AboutUs from "../Pages/AboutUs";
 import ContactUs from "../Pages/ContactUs";
 import TopDonors from "../Pages/TopDonors";
-import DonorDashboard from "../Pages/DonorDashboard";
-import RecipientDashboard from "../Pages/RecipientDashboard";
 import Register from "../Pages/Register";
 import Login from "../Pages/Login";
 import ProtectedRoute from "../Components/ProtectedRoute";
+import DashboardLayout from "../LayOut/DashboardLayout";
 
-// Admin Components
+// Dashboard Pages
+import DonorDashboard from "../Pages/DonorDashboard";
+import RecipientDashboard from "../Pages/RecipientDashboard";
+
+// Admin Pages
 import UserList from "../Components/AdminDashboard/UserList";
 import DonorList from "../Components/AdminDashboard/DonorList";
 import RecipientList from "../Components/AdminDashboard/RecipentList";
-import AdminLayout from "../LayOut/AdminLayout";
 import Profile from "../Components/AdminDashboard/Profile";
 
 export const routes = createBrowserRouter([
@@ -26,42 +28,52 @@ export const routes = createBrowserRouter([
       { path: "/topDonor", element: <TopDonors /> },
       { path: "/contact", element: <ContactUs /> },
       { path: "/about", element: <AboutUs /> },
+      { path: "/register", element: <Register /> },
+      { path: "/login", element: <Login /> },
 
+      // Donor Dashboard
       {
         path: "/dashboard/donor",
         element: (
           <ProtectedRoute requiredRole="donor">
-            <DonorDashboard />
+            <DashboardLayout />
           </ProtectedRoute>
         ),
+        children: [
+          { path: "", element: <DonorDashboard /> },
+          { path: "profile", element: <Profile /> },
+        ],
       },
+
+      // Recipient Dashboard
       {
         path: "/dashboard/recipient",
         element: (
           <ProtectedRoute requiredRole="recipient">
-            <RecipientDashboard />
+            <DashboardLayout />
           </ProtectedRoute>
         ),
+        children: [
+          { path: "", element: <RecipientDashboard /> },
+          { path: "profile", element: <Profile /> },
+        ],
       },
 
-      // Admin Dashboard with Nested Routes
+      // Admin Dashboard
       {
         path: "/dashboard/admin",
         element: (
           <ProtectedRoute requiredRole="admin">
-            <AdminLayout />
+            <DashboardLayout />
           </ProtectedRoute>
         ),
         children: [
           { path: "users", element: <UserList /> },
           { path: "donors", element: <DonorList /> },
           { path: "recipients", element: <RecipientList /> },
-          { path: "profile", element: <Profile></Profile> },
+          { path: "profile", element: <Profile /> },
         ],
       },
-
-      { path: "/register", element: <Register /> },
-      { path: "/login", element: <Login /> },
     ],
   },
 ]);
