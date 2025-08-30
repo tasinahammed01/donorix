@@ -4,12 +4,12 @@ import MainLayout from "../LayOut/MainLayout";
 import AboutUs from "../Pages/AboutUs";
 import ContactUs from "../Pages/ContactUs";
 import TopDonors from "../Pages/TopDonors";
-import BloodRequest from "../Pages/BloodRequest";
 import DonorDashboard from "../Pages/DonorDashboard";
 import RecipientDashboard from "../Pages/RecipientDashboard";
 import AdminDashboard from "../Pages/AdminDashboard";
 import Register from "../Pages/Register";
 import Login from "../Pages/Login";
+import ProtectedRoute from "../Components/ProtectedRoute";
 
 export const routes = createBrowserRouter([
   {
@@ -32,21 +32,30 @@ export const routes = createBrowserRouter([
         path: "/about",
         element: <AboutUs />,
       },
-      {
-        path: "/requests",
-        element: <BloodRequest />,
-      },
+      
       {
         path: "/dashboard/donor",
-        element: <DonorDashboard />,
+        element: (
+          <ProtectedRoute requiredRole="donor">
+            <DonorDashboard />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/dashboard/recipient",
-        element: <RecipientDashboard />,
+        element: (
+          <ProtectedRoute requiredRole="recipient">
+            <RecipientDashboard />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/dashboard/admin",
-        element: <AdminDashboard />,
+        element: (
+          <ProtectedRoute requiredRole="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/register",

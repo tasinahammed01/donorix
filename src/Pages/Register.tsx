@@ -13,8 +13,7 @@ const Register = () => {
   const totalDonated = 0;
 
   const navigate = useNavigate();
-
-  const { createUser } = useContext(AuthContext);
+  const auth = useContext(AuthContext);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,13 +27,15 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await createUser(email, password);
-    } catch (err: unknown) {
-      if (err instanceof Error) setError(err.message);
-      else setError("An unexpected error occurred.");
-    }
+      if (!auth?.createUser) {
+        setError("Authentication service not available");
+        return;
+      }
 
-    try {
+      // Create Firebase user first
+      await auth.createUser(email, password);
+
+      // Then create user in backend
       const res = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,7 +56,11 @@ const Register = () => {
       }
 
       // Registration successful → redirect to login
-      navigate("/");
+      navigate("/login", { 
+        state: { 
+          message: "Registration successful! Please login with your new account." 
+        } 
+      });
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
       else setError("An unexpected error occurred.");
@@ -63,6 +68,10 @@ const Register = () => {
       setLoading(false);
     }
   };
+
+  if (!auth) {
+    return <div>Authentication service not available</div>;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
@@ -132,23 +141,23 @@ const Register = () => {
             required
           />
 
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
           <button
             type="submit"
             className="w-full py-2 bg-red-600 text-white rounded-md font-semibold hover:bg-red-700 transition disabled:opacity-60"
             disabled={loading}
           >
-            {loading ? "Registering..." : "Register"}
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
-
-          {error && <div className="text-red-400 text-sm mt-2">{error}</div>}
         </form>
 
-        <div className="mt-5 text-center">
+        <p className="mt-5 text-white text-center">
           Already have an account?{" "}
-          <Link to="/login" className="text-red-600">
+          <Link className="text-red-600" to="/login">
             Login
           </Link>
-        </div>
+        </p>
       </div>
     </div>
   );

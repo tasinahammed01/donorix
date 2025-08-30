@@ -1,7 +1,6 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import auth from "../firebase/firebase.init";
+import { useContext, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { AuthContext } from "../providers/AuthProvider";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +9,11 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const auth = useContext(AuthContext);
+
+  // Get the intended destination from location state, or default to home
+  const from = location.state?.from?.pathname || "/";
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,9 +21,31 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // Redirect after successful login
-      navigate("/dashboard"); // replace with your dashboard route
+      if (!auth?.signInUser) {
+        setError("Authentication service not available");
+        return;
+      }
+
+      await auth.signInUser(email, password);
+      
+      // Wait a bit for the auth state to update
+      setTimeout(() => {
+        if (auth.user) {
+          // Redirect based on user role
+          if (auth.user.role === "donor") {
+            navigate("/dashboard/donor");
+          } else if (auth.user.role === "recipient") {
+            navigate("/dashboard/recipient");
+          } else if (auth.user.role === "admin") {
+            navigate("/dashboard/admin");
+          } else {
+            navigate(from);
+          }
+        } else {
+          navigate(from);
+        }
+      }, 1000);
+      
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -30,6 +56,10 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  if (!auth) {
+    return <div>Authentication service not available</div>;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
