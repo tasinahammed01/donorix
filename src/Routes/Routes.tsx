@@ -46,12 +46,11 @@ export const routes = createBrowserRouter([
           </ProtectedRoute>
         ),
         children: [
-          { path: "", element: <DonorDashboard /> },
-          { path: "profile", element: <PersonalProfile /> },
           { path: "history", element: <DonationHistory /> },
           { path: "events", element: <UpcomingEvents /> },
           { path: "notifications", element: <Notifications /> },
           { path: "achievements", element: <Achievements /> },
+          { path: "profile", element: <Profile /> },
         ],
       },
 

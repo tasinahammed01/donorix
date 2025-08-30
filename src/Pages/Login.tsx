@@ -33,11 +33,11 @@ const Login = () => {
         if (auth.user) {
           // Redirect based on user role
           if (auth.user.role === "donor") {
-            navigate("/dashboard/donor");
+            navigate("/dashboard/donor/profile");
           } else if (auth.user.role === "recipient") {
-            navigate("/dashboard/recipient");
+            navigate("/dashboard/recipient/profile");
           } else if (auth.user.role === "admin") {
-            navigate("/dashboard/admin");
+            navigate("/dashboard/admin/profile");
           } else {
             navigate(from);
           }

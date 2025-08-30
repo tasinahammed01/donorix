@@ -46,14 +46,14 @@ const Header = () => {
       ];
 
       if (auth.user.role === "donor")
-        links.push({ label: "Donor Dashboard", to: "/dashboard/admin/donor" });
+        links.push({ label: "Donor Dashboard", to: "/dashboard/donor/profile" });
       if (auth.user.role === "recipient")
         links.push({
           label: "Recipient Dashboard",
-          to: "/dashboard/recipient",
+          to: "/dashboard/recipient/profile",
         });
       if (auth.user.role === "admin")
-        links.push({ label: "Admin Dashboard", to: "/dashboard/admin/users" });
+        links.push({ label: "Admin Dashboard", to: "/dashboard/admin/profile" });
 
       links.push({ label: "Logout", to: "#", onClick: handleLogout });
 
