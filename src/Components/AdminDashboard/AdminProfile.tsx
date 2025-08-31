@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../providers/AuthProvider";
 import axios from "axios";
+import { Link } from "react-router";
 
 interface User {
   _id: string;
@@ -73,14 +74,16 @@ const AdminProfile = () => {
     <div className="min-h-screen bg-gray-900 text-gray-200 flex items-center justify-center p-6">
       <div className="w-full max-w-3xl bg-gray-800 rounded-2xl shadow-xl p-8 relative">
         {/* Edit Button */}
-        <button className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl transition">
-          Edit Profile
-        </button>
+        <Link to={`/dashboard/admin/profile/update/${admin._id}`}>
+          <button className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl transition">
+            Edit Profile
+          </button>
+        </Link>
 
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center gap-6">
           <img
-            src={admin.profileImage || "https://via.placeholder.com/150"}
+            src={admin.profileImage}
             alt="Admin"
             className="w-32 h-32 rounded-full border-4 border-red-500 object-cover"
           />
