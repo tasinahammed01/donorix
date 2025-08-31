@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useDropzone } from "react-dropzone";
 
 const AdminProfileUpdate = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // Expecting route: /admin/profile/update/:id
+  const { id } = useParams(); // /admin/profile/update/:id
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     location: "",
-    profileImage: "",
+    profileImage: "", // will store URL after upload
   });
-
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Fetch current admin data
@@ -28,6 +30,7 @@ const AdminProfileUpdate = () => {
           location: data.location || "",
           profileImage: data.profileImage || "",
         });
+        if (data.profileImage) setPreview(data.profileImage);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching admin data:", error);
@@ -42,14 +45,34 @@ const AdminProfileUpdate = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  // Dropzone setup
+  const onDrop = (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: { "image/*": [] },
+    onDrop,
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
+      const dataToSend = new FormData();
+      dataToSend.append("name", formData.name);
+      dataToSend.append("email", formData.email);
+      dataToSend.append("phone", formData.phone);
+      dataToSend.append("location", formData.location);
+      if (selectedFile) dataToSend.append("profileImage", selectedFile);
+
       const response = await fetch(`http://localhost:5000/users/update/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: dataToSend,
       });
 
       if (response.ok) {
@@ -122,17 +145,34 @@ const AdminProfileUpdate = () => {
             />
           </div>
 
+          {/* Dropzone for Profile Image */}
           <div>
-            <label className="block text-sm font-semibold mb-1">
-              Profile Image URL
+            <label className="block text-sm font-semibold mb-2">
+              Profile Image
             </label>
-            <input
-              type="text"
-              name="profileImage"
-              value={formData.profileImage}
-              onChange={handleChange}
-              className="w-full bg-gray-700 text-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
+            <div
+              {...getRootProps()}
+              className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition
+              ${
+                isDragActive
+                  ? "border-red-500 bg-red-900/20"
+                  : "border-gray-600 bg-gray-800"
+              }`}
+            >
+              <input {...getInputProps()} />
+              {preview ? (
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="mx-auto w-32 h-32 rounded-full object-cover"
+                />
+              ) : (
+                <p className="text-gray-400">
+                  Drag & drop an image here, or{" "}
+                  <span className="text-red-400">click to upload</span>
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-between mt-6">

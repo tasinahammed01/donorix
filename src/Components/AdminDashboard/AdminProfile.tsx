@@ -1,38 +1,88 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../../providers/AuthProvider";
+import axios from "axios";
+
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  location?: string;
+  profileImage?: string;
+  role: string;
+  createdAt?: string;
+}
 
 const AdminProfile = () => {
-  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
-  // Example admin data (replace with dynamic data from your backend)
-  const admin = {
-    name: "John Doe",
-    email: "admin@bloodbank.org",
-    role: "Administrator",
-    phone: "+1 234 567 890",
-    location: "New York, USA",
-    joined: "January 15, 2024",
-    profileImage: "https://via.placeholder.com/150", // Replace with admin's image URL
-  };
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+  const [fetchUsers, setFetchUsers] = useState<User[]>([]);
+  const [admin, setAdmin] = useState<User | null>(null);
+
+  // Fetch all users
+  useEffect(() => {
+    const fetchAllUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get("http://localhost:5000/users");
+        setFetchUsers(response.data);
+      } catch (err: any) {
+        setError(err.message || "Something went wrong!");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAllUsers();
+  }, []);
+
+  // Find logged-in admin
+  useEffect(() => {
+    if (fetchUsers.length > 0 && user) {
+      const adminUser = fetchUsers.find((u) => u.email === user.email) || null;
+      setAdmin(adminUser);
+    }
+  }, [fetchUsers, user]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[70vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500 text-center mt-10 font-semibold">
+        {error}
+      </div>
+    );
+  }
+
+  if (!admin) {
+    return (
+      <div className="text-center text-gray-400 mt-10 font-semibold">
+        Admin not found
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200 flex items-center justify-center p-6">
       <div className="w-full max-w-3xl bg-gray-800 rounded-2xl shadow-xl p-8 relative">
         {/* Edit Button */}
-        <Link to={`/dashboard/admin/profile/update/${admin._id}`}>
-          <button
-            onClick={() => navigate("/admin/profile/update")}
-            className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl transition"
-          >
-            Edit Profile
-          </button>
-        </Link>
+        <button className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl transition">
+          Edit Profile
+        </button>
 
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center gap-6">
           <img
-            src={admin.profileImage}
+            src={admin.profileImage || "https://via.placeholder.com/150"}
             alt="Admin"
-            className="w-32 h-32 rounded-full border-4 border-red-500"
+            className="w-32 h-32 rounded-full border-4 border-red-500 object-cover"
           />
           <div>
             <h1 className="text-3xl font-bold">{admin.name}</h1>
@@ -48,15 +98,19 @@ const AdminProfile = () => {
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-300">Phone</h2>
-            <p className="text-gray-400">{admin.phone}</p>
+            <p className="text-gray-400">{admin.phone || "-"}</p>
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-300">Location</h2>
-            <p className="text-gray-400">{admin.location}</p>
+            <p className="text-gray-400">{admin.location || "-"}</p>
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-300">Joined</h2>
-            <p className="text-gray-400">{admin.joined}</p>
+            <p className="text-gray-400">
+              {admin.createdAt
+                ? new Date(admin.createdAt).toLocaleDateString()
+                : "-"}
+            </p>
           </div>
         </div>
       </div>
