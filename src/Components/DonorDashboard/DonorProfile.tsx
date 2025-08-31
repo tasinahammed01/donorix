@@ -1,5 +1,5 @@
 
-const PersonalProfile = () => {
+const DonorProfile = () => {
     return (
         <div>
             This is personal profile
@@ -7,4 +7,4 @@ const PersonalProfile = () => {
     );
 };
 
-export default PersonalProfile;
+export default DonorProfile;

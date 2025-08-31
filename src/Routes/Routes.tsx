@@ -10,20 +10,20 @@ import ProtectedRoute from "../Components/ProtectedRoute";
 import DashboardLayout from "../LayOut/DashboardLayout";
 
 // Dashboard Pages
-import DonorDashboard from "../Pages/DonorDashboard";
 import RecipientDashboard from "../Pages/RecipientDashboard";
 
 // Admin Pages
 import UserList from "../Components/AdminDashboard/UserList";
 import DonorList from "../Components/AdminDashboard/DonorList";
 import RecipientList from "../Components/AdminDashboard/RecipentList";
-import Profile from "../Components/AdminDashboard/Profile";
-import PersonalProfile from "../Components/DonorDashboard/PersonalProfile";
+import DonorProfile from "../Components/AdminDashboard/AdminProfile";
 import DonationHistory from "../Components/DonorDashboard/DonationHistory";
 import UpcomingEvents from "../Components/DonorDashboard/UpcomingEvents";
 import Notifications from "../Components/DonorDashboard/Notifications";
 import Achievements from "../Components/DonorDashboard/Achievements";
-import AccountSettings from "../Components/DonorDashboard/AccountSettings";
+import RecipentProfile from "../Components/RecipentDashboard/RecipentProfile";
+import AdminProfile from "../Components/AdminDashboard/AdminProfile";
+import AdminProfileUpdate from "../Components/AdminDashboard/AdminProfileUpdate";
 
 export const routes = createBrowserRouter([
   {
@@ -50,7 +50,7 @@ export const routes = createBrowserRouter([
           { path: "events", element: <UpcomingEvents /> },
           { path: "notifications", element: <Notifications /> },
           { path: "achievements", element: <Achievements /> },
-          { path: "profile", element: <Profile /> },
+          { path: "profile", element: <DonorProfile /> },
         ],
       },
 
@@ -64,7 +64,7 @@ export const routes = createBrowserRouter([
         ),
         children: [
           { path: "", element: <RecipientDashboard /> },
-          { path: "profile", element: <Profile /> },
+          { path: "profile", element: <RecipentProfile /> },
         ],
       },
 
@@ -80,7 +80,8 @@ export const routes = createBrowserRouter([
           { path: "users", element: <UserList /> },
           { path: "donors", element: <DonorList /> },
           { path: "recipients", element: <RecipientList /> },
-          { path: "profile", element: <Profile /> },
+          { path: "profile", element: <AdminProfile /> },
+          { path: "profile/update/:id", element: <AdminProfileUpdate /> },
         ],
       },
     ],

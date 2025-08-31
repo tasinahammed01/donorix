@@ -46,14 +46,20 @@ const Header = () => {
       ];
 
       if (auth.user.role === "donor")
-        links.push({ label: "Donor Dashboard", to: "/dashboard/donor/profile" });
+        links.push({
+          label: "Donor Dashboard",
+          to: "/dashboard/donor/profile",
+        });
       if (auth.user.role === "recipient")
         links.push({
           label: "Recipient Dashboard",
           to: "/dashboard/recipient/profile",
         });
       if (auth.user.role === "admin")
-        links.push({ label: "Admin Dashboard", to: "/dashboard/admin/profile" });
+        links.push({
+          label: "Admin Dashboard",
+          to: "/dashboard/admin/profile",
+        });
 
       links.push({ label: "Logout", to: "#", onClick: handleLogout });
 
@@ -66,7 +72,11 @@ const Header = () => {
     return (
       <div className="sticky top-0 bg-black text-white py-4 z-50 shadow-md">
         <div className="flex items-center justify-center px-5">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          <img
+            className="w-32 h-16 object-contain animate-pulse"
+            src="https://i.ibb.co/HD77xCgw/Screenshot-617-removebg-preview.png"
+            alt=""
+          />
         </div>
       </div>
     );
