@@ -16,7 +16,6 @@ import RecipientDashboard from "../Pages/RecipientDashboard";
 import UserList from "../Components/AdminDashboard/UserList";
 import DonorList from "../Components/AdminDashboard/DonorList";
 import RecipientList from "../Components/AdminDashboard/RecipentList";
-import DonorProfile from "../Components/AdminDashboard/AdminProfile";
 import DonationHistory from "../Components/DonorDashboard/DonationHistory";
 import UpcomingEvents from "../Components/DonorDashboard/UpcomingEvents";
 import Notifications from "../Components/DonorDashboard/Notifications";
@@ -24,6 +23,8 @@ import Achievements from "../Components/DonorDashboard/Achievements";
 import RecipentProfile from "../Components/RecipentDashboard/RecipentProfile";
 import AdminProfile from "../Components/AdminDashboard/AdminProfile";
 import AdminProfileUpdate from "../Components/AdminDashboard/AdminProfileUpdate";
+import DonorProfile from "../Components/DonorDashboard/DonorProfile";
+import DonorProfileUpdate from "../Components/DonorDashboard/DonorProfileUpdate";
 
 export const routes = createBrowserRouter([
   {
@@ -51,6 +52,7 @@ export const routes = createBrowserRouter([
           { path: "notifications", element: <Notifications /> },
           { path: "achievements", element: <Achievements /> },
           { path: "profile", element: <DonorProfile /> },
+          { path: "profile/update/:id", element: <DonorProfileUpdate /> },
         ],
       },
 
