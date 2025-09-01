@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import Swal from "sweetalert2";
+import { AuthContext } from "../../providers/AuthProvider";
 
 const DonorProfileUpdate = () => {
   const navigate = useNavigate();
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user; // get logged-in user
+  const [userId, setUserId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -24,7 +28,37 @@ const DonorProfileUpdate = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  // Check if the donor is eligible based on age and BMI
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: { "image/*": [] },
+    onDrop: (acceptedFiles: File[]) => {
+      const file = acceptedFiles[0];
+      if (file) {
+        setSelectedFile(file);
+        setPreview(URL.createObjectURL(file));
+      }
+    },
+  });
+
+  // Fetch all users, find current user by email, get _id
+  useEffect(() => {
+    const fetchUserId = async () => {
+      try {
+        const response = await fetch("https://donorix-backend-1.onrender.com/users");
+        const users = await response.json();
+
+        const currentUser = users.find((u: { email: string; _id: string }) => u.email === user?.email);
+        if (currentUser) {
+          setUserId(currentUser._id);
+        }
+      } catch (err) {
+        console.error("Error fetching user ID:", err);
+      }
+    };
+
+    if (user?.email) fetchUserId();
+  }, [user?.email]);
+
+  // Eligibility and BMI calculations
   const checkEligibility = (
     age: number,
     bmi: number,
@@ -49,7 +83,7 @@ const DonorProfileUpdate = () => {
     if (!lastDateStr) return "";
     const lastDate = new Date(lastDateStr);
     lastDate.setDate(lastDate.getDate() + 90);
-    return lastDate.toISOString().split("T")[0]; // YYYY-MM-DD
+    return lastDate.toISOString().split("T")[0];
   };
 
   const handleChange = (
@@ -95,25 +129,34 @@ const DonorProfileUpdate = () => {
         );
         newData.nextDonationDate = calculateNextDonationDate(value);
       }
+
       return newData;
     });
   };
 
-  const onDrop = (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file) {
-      setSelectedFile(file);
-      setPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { "image/*": [] },
-    onDrop,
-  });
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.name || !formData.phone) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Fields",
+        text: "Please fill in the required fields.",
+        confirmButtonColor: "#d33",
+      });
+      return;
+    }
+
+    if (!userId) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "User ID not found.",
+        confirmButtonColor: "#d33",
+      });
+      return;
+    }
+
     try {
       const form = new FormData();
       form.append("name", formData.name);
@@ -133,18 +176,24 @@ const DonorProfileUpdate = () => {
         })
       );
 
-      if (selectedFile) {
-        form.append("profileImage", selectedFile);
-      }
+      if (selectedFile) form.append("profileImage", selectedFile);
 
-      // Simulate the backend update process
+      const response = await fetch(
+        `https://donorix-backend-1.onrender.com/users/update/${userId}`,
+        {
+          method: "PATCH",
+          body: form,
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to update profile");
+
       Swal.fire({
         icon: "success",
         title: "Profile Updated",
         text: "The donor profile has been updated successfully!",
         confirmButtonColor: "#d33",
       }).then(() => {
-        // Reset form state after successful submission
         setFormData({
           name: "",
           phone: "",
@@ -159,15 +208,15 @@ const DonorProfileUpdate = () => {
           nextDonationDate: "",
           age: "",
         });
-        setSelectedFile(null); // Clear the selected file
-        setPreview(null); // Clear the preview
+        setSelectedFile(null);
+        setPreview(null);
         navigate("/dashboard/donor/profile", { replace: true });
       });
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Something went wrong!",
+        text: "Something went wrong! " + (error as Error).message,
         confirmButtonColor: "#d33",
       });
       console.error("Error updating donor profile:", error);
@@ -308,16 +357,23 @@ const DonorProfileUpdate = () => {
 
 export default DonorProfileUpdate;
 
-// Reusable components
+// Reusable InputField
 interface InputFieldProps {
   label: string;
   name: string;
   value: string;
   type?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
 }
-
-const InputField = ({ label, name, value, type = "text", onChange }: InputFieldProps) => (
+const InputField = ({
+  label,
+  name,
+  value,
+  type = "text",
+  onChange,
+}: InputFieldProps) => (
   <div>
     <label className="block text-sm font-semibold mb-1">{label}</label>
     <input
@@ -330,15 +386,23 @@ const InputField = ({ label, name, value, type = "text", onChange }: InputFieldP
   </div>
 );
 
+// Reusable SelectField
 interface SelectFieldProps {
   label: string;
   name: string;
   value: string;
   options: string[];
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
 }
-
-const SelectField = ({ label, name, value, options, onChange }: SelectFieldProps) => (
+const SelectField = ({
+  label,
+  name,
+  value,
+  options,
+  onChange,
+}: SelectFieldProps) => (
   <div>
     <label className="block text-sm font-semibold mb-1">{label}</label>
     <select
@@ -348,7 +412,7 @@ const SelectField = ({ label, name, value, options, onChange }: SelectFieldProps
       className="w-full bg-gray-700 text-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
     >
       <option value="">Select</option>
-      {options.map((opt: string) => (
+      {options.map((opt) => (
         <option key={opt} value={opt}>
           {opt}
         </option>
