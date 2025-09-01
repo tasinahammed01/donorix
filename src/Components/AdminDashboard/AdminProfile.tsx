@@ -45,7 +45,7 @@ const AdminProfile = () => {
     const fetchAllUsers = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5000/users");
+        const response = await axios.get("https://donorix-backend-1.onrender.com/users");
         setFetchUsers(response.data);
       } catch (err: any) {
         setError(err.message || "Something went wrong!");
@@ -81,7 +81,7 @@ const AdminProfile = () => {
 
       // Delete the image from the backend
       await axios.delete(
-        `http://localhost:5000/users/${admin._id}/profile-image`
+        `https://donorix-backend-1.onrender.com/users/${admin._id}/profile-image`
       );
 
       // Update the state to remove the profile image

@@ -30,7 +30,7 @@ const Achievements = () => {
       if (!user?._id) return;
       try {
         const res = await fetch(
-          `http://localhost:5000/api/donations/${user._id}`
+          `https://donorix-backend-1.onrender.com/api/donations/${user._id}`
         );
         const data = await res.json();
 

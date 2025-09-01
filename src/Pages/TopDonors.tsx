@@ -21,7 +21,7 @@ const TopDonors = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/users")
+    fetch("https://donorix-backend-1.onrender.com/users")
       .then((res) => res.json())
       .then((data) => {
         console.log("Fetched users:", data); // Debug

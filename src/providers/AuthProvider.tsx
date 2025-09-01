@@ -37,7 +37,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchUserDetails = async (firebaseUser: FirebaseUser) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/users?email=${firebaseUser.email}`
+        `https://donorix-backend-1.onrender.com/users?email=${firebaseUser.email}`
       );
       if (response.ok) {
         const users = await response.json();

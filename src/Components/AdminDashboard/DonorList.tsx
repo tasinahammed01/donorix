@@ -21,7 +21,7 @@ const DonorList = () => {
     const fetchDonors = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5000/users");
+        const response = await axios.get("https://donorix-backend-1.onrender.com/users");
         const donorOnly = response.data.filter(
           (user: Donor) => user.role.toLowerCase() === "donor"
         );
@@ -48,7 +48,7 @@ const DonorList = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:5000/users/${id}`);
+        await axios.delete(`https://donorix-backend-1.onrender.com/users/${id}`);
         setDonors(donors.filter((donor) => donor._id !== id));
         Swal.fire("Deleted!", "Donor has been deleted.", "success");
       } catch (err) {
@@ -59,7 +59,7 @@ const DonorList = () => {
 
   const handleSuspend = async (id: string, action: "suspend" | "unsuspend") => {
     try {
-      await axios.patch(`http://localhost:5000/users/${id}/suspend`, {
+      await axios.patch(`https://donorix-backend-1.onrender.com/users/${id}/suspend`, {
         action,
       });
       setDonors((prev) =>
@@ -84,7 +84,7 @@ const DonorList = () => {
 
   const handleRoleChange = async (id: string, role: string) => {
     try {
-      await axios.patch(`http://localhost:5000/users/${id}/role`, { role });
+      await axios.patch(`https://donorix-backend-1.onrender.com/users/${id}/role`, { role });
       setDonors((prev) =>
         prev.map((donor) => (donor._id === id ? { ...donor, role } : donor))
       );

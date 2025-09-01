@@ -22,7 +22,7 @@ const UserList = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5000/users");
+        const response = await axios.get("https://donorix-backend-1.onrender.com/users");
         setUsers(response.data);
       } catch (err: any) {
         setError(err.message || "Something went wrong!");
@@ -46,7 +46,7 @@ const UserList = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:5000/users/${id}`);
+        await axios.delete(`https://donorix-backend-1.onrender.com/users/${id}`);
         setUsers(users.filter((user) => user._id !== id));
         Swal.fire("Deleted!", "User has been deleted.", "success");
       } catch (err) {
@@ -62,7 +62,7 @@ const UserList = () => {
     const action = currentStatus === "suspended" ? "unsuspend" : "suspend";
     try {
       const response = await axios.patch(
-        `http://localhost:5000/users/${id}/suspend`,
+        `https://donorix-backend-1.onrender.com/users/${id}/suspend`,
         { action }
       );
       setUsers(
@@ -81,7 +81,7 @@ const UserList = () => {
   const handleRoleChange = async (id: string, newRole: string) => {
     try {
       const response = await axios.patch(
-        `http://localhost:5000/users/${id}/role`,
+        `https://donorix-backend-1.onrender.com/users/${id}/role`,
         { role: newRole }
       );
       setUsers(
