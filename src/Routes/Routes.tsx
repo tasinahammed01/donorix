@@ -25,6 +25,7 @@ import AdminProfile from "../Components/AdminDashboard/AdminProfile";
 import AdminProfileUpdate from "../Components/AdminDashboard/AdminProfileUpdate";
 import DonorProfile from "../Components/DonorDashboard/DonorProfile";
 import DonorProfileUpdate from "../Components/DonorDashboard/DonorProfileUpdate";
+import RecipientProfileUpdate from "../Components/RecipentDashboard/RecipentProfileUpdate";
 
 export const routes = createBrowserRouter([
   {
@@ -67,6 +68,7 @@ export const routes = createBrowserRouter([
         children: [
           { path: "", element: <RecipientDashboard /> },
           { path: "profile", element: <RecipentProfile /> },
+          { path: "profile/update/:id", element: <RecipientProfileUpdate /> },
         ],
       },
 

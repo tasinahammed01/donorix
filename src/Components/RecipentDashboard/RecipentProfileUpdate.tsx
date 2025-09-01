@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import Swal from "sweetalert2";
 
-const RecipentProfileUpdate = () => {
+const RecipientProfileUpdate = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -35,6 +35,7 @@ const RecipentProfileUpdate = () => {
     const gapIsValid = checkDonationGap(lastDonationDateStr);
     return ageIsValid && bmiIsValid && gapIsValid;
   };
+
 
   const checkDonationGap = (lastDateStr: string) => {
     if (!lastDateStr) return true;
@@ -161,7 +162,7 @@ const RecipentProfileUpdate = () => {
         });
         setSelectedFile(null); // Clear the selected file
         setPreview(null); // Clear the preview
-        navigate("/dashboard/donor/profile", { replace: true });
+        navigate("/dashboard/recipient/profile", { replace: true });
       });
     } catch (error) {
       Swal.fire({
@@ -178,7 +179,7 @@ const RecipentProfileUpdate = () => {
     <div className="min-h-screen bg-gray-900 text-gray-200 flex items-center justify-center p-6">
       <div className="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-xl p-8">
         <h1 className="text-3xl font-bold text-center mb-6">
-          Update Donor Profile
+          Update Recipient Profile
         </h1>
         <form onSubmit={handleSubmit} className="space-y-5">
           <InputField
@@ -306,7 +307,7 @@ const RecipentProfileUpdate = () => {
   );
 };
 
-export default RecipentProfileUpdate;
+export default RecipientProfileUpdate;
 
 // Reusable components
 const InputField = ({ label, name, value, type = "text", onChange }: any) => (

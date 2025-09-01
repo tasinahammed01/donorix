@@ -161,7 +161,7 @@ const AdminProfileUpdate = () => {
         });
         setSelectedFile(null); // Clear the selected file
         setPreview(null); // Clear the preview
-        navigate("/dashboard/donor/profile", { replace: true });
+        navigate("/dashboard/admin/profile", { replace: true });
       });
     } catch (error) {
       Swal.fire({
