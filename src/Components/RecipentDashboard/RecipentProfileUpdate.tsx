@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import Swal from "sweetalert2";
 
-const DonorProfileUpdate = () => {
+const RecipentProfileUpdate = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -19,19 +19,21 @@ const DonorProfileUpdate = () => {
     bmi: "",
     isEligible: false,
     nextDonationDate: "",
-     
   });
+
+  console.log(formData.profileImage);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch donor data
   useEffect(() => {
-    const fetchDonorData = async () => {
+    const fetchAdminData = async () => {
       try {
         const response = await fetch(`http://localhost:5000/users/${id}`);
         const data = await response.json();
+
+        // If donations exist, populate from donations object
         const donations = data.donations || {};
         setFormData({
           name: data.name || "",
@@ -45,29 +47,17 @@ const DonorProfileUpdate = () => {
           bmi: donations.bmi || "",
           isEligible: donations.isEligible || false,
           nextDonationDate: donations.nextDonationDate || "",
-          age: data.age || "", // Fetch age from the backend if available
         });
+
         if (data.profileImage) setPreview(data.profileImage);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching donor data:", error);
+        console.error("Error fetching data:", error);
         setLoading(false);
       }
     };
-    fetchDonorData();
+    fetchAdminData();
   }, [id]);
-
-  // Check if the donor is eligible based on age and BMI
-  const checkEligibility = (
-    age: number,
-    bmi: number,
-    lastDonationDateStr: string
-  ) => {
-    const ageIsValid = age >= 18;
-    const bmiIsValid = bmi >= 18.5 && bmi <= 24.9;
-    const gapIsValid = checkDonationGap(lastDonationDateStr);
-    return ageIsValid && bmiIsValid && gapIsValid;
-  };
 
   const checkDonationGap = (lastDateStr: string) => {
     if (!lastDateStr) return true;
@@ -91,10 +81,10 @@ const DonorProfileUpdate = () => {
     const { name, value } = e.target;
     setFormData((prev) => {
       const newData = { ...prev, [name]: value };
+
+      // BMI and eligibility calculation
       const weightNum = parseFloat(newData.weight);
       const heightNum = parseFloat(newData.height);
-      const ageNum = parseInt(newData.age, 10);
-
       if (
         (name === "weight" || name === "height") &&
         weightNum > 0 &&
@@ -102,32 +92,23 @@ const DonorProfileUpdate = () => {
       ) {
         const bmiValue = weightNum / (heightNum / 100) ** 2;
         newData.bmi = bmiValue.toFixed(1);
-        newData.isEligible = checkEligibility(
-          ageNum,
-          bmiValue,
-          newData.lastDonationDate
-        );
+        newData.isEligible =
+          bmiValue >= 18.5 &&
+          bmiValue <= 24.9 &&
+          checkDonationGap(newData.lastDonationDate);
         newData.nextDonationDate = calculateNextDonationDate(
           newData.lastDonationDate
         );
       }
 
-      if (name === "age") {
-        newData.isEligible = checkEligibility(
-          ageNum,
-          parseFloat(newData.bmi),
-          newData.lastDonationDate
-        );
-      }
-
       if (name === "lastDonationDate") {
-        newData.isEligible = checkEligibility(
-          ageNum,
-          parseFloat(newData.bmi),
-          value
-        );
+        newData.isEligible =
+          checkDonationGap(value) &&
+          parseFloat(newData.bmi) >= 18.5 &&
+          parseFloat(newData.bmi) <= 24.9;
         newData.nextDonationDate = calculateNextDonationDate(value);
       }
+
       return newData;
     });
   };
@@ -147,11 +128,14 @@ const DonorProfileUpdate = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       const form = new FormData();
       form.append("name", formData.name);
       form.append("phone", formData.phone);
       form.append("location", formData.location);
+
+      // Add donations as JSON string
       form.append(
         "donations",
         JSON.stringify({
@@ -162,11 +146,10 @@ const DonorProfileUpdate = () => {
           bmi: formData.bmi,
           isEligible: formData.isEligible,
           nextDonationDate: formData.nextDonationDate,
-          age: formData.age,
         })
       );
-      
 
+      // Add image if selected
       if (selectedFile) {
         form.append("profileImage", selectedFile);
       }
@@ -180,10 +163,10 @@ const DonorProfileUpdate = () => {
         Swal.fire({
           icon: "success",
           title: "Profile Updated",
-          text: "The donor profile has been updated successfully!",
+          text: "The admin profile has been updated successfully!",
           confirmButtonColor: "#d33",
         }).then(() => {
-          navigate("/dashboard/donor/profile", { replace: true });
+          navigate("/dashboard/admin/profile", { replace: true });
         });
       } else {
         Swal.fire({
@@ -200,14 +183,14 @@ const DonorProfileUpdate = () => {
         text: "Something went wrong!",
         confirmButtonColor: "#d33",
       });
-      console.error("Error updating donor profile:", error);
+      console.error("Error updating profile:", error);
     }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-        Loading donor profile...
+        Loading profile...
       </div>
     );
   }
@@ -215,9 +198,7 @@ const DonorProfileUpdate = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200 flex items-center justify-center p-6">
       <div className="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-xl p-8">
-        <h1 className="text-3xl font-bold text-center mb-6">
-          Update Donor Profile
-        </h1>
+        <h1 className="text-3xl font-bold text-center mb-6">Update Profile</h1>
         <form onSubmit={handleSubmit} className="space-y-5">
           <InputField
             label="Full Name"
@@ -235,13 +216,6 @@ const DonorProfileUpdate = () => {
             label="Location"
             name="location"
             value={formData.location}
-            onChange={handleChange}
-          />
-          <InputField
-            label="Age"
-            name="age"
-            type="number"
-            value={formData.age}
             onChange={handleChange}
           />
           <SelectField
@@ -272,6 +246,7 @@ const DonorProfileUpdate = () => {
             value={formData.height}
             onChange={handleChange}
           />
+
           <div className="mt-2">
             <p>BMI: {formData.bmi}</p>
             <p>
@@ -287,15 +262,10 @@ const DonorProfileUpdate = () => {
               </span>
             </p>
             {formData.nextDonationDate && (
-              <p
-                className={`font-semibold ${
-                  formData.isEligible ? "text-green-400" : "text-red-400"
-                }`}
-              >
-                Next Donation Date: {formData.nextDonationDate}
-              </p>
+              <p>Next Donation Date: {formData.nextDonationDate}</p>
             )}
           </div>
+
           <div>
             <label className="block text-sm font-semibold mb-2">
               Profile Image
@@ -323,10 +293,11 @@ const DonorProfileUpdate = () => {
               )}
             </div>
           </div>
+
           <div className="flex justify-between mt-6">
             <button
               type="button"
-              onClick={() => navigate("/dashboard/donor/profile")}
+              onClick={() => navigate("/admin/profile")}
               className="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-xl transition"
             >
               Cancel
@@ -344,7 +315,7 @@ const DonorProfileUpdate = () => {
   );
 };
 
-export default DonorProfileUpdate;
+export default RecipentProfileUpdate;
 
 // Reusable components
 const InputField = ({ label, name, value, type = "text", onChange }: any) => (

@@ -13,7 +13,7 @@ const DonationHistory = () => {
           </tr>
         </thead>
         <tbody>
-          <tr className="bg-gray-900">
+          <tr className="bg-gray-900 text-center">
             <td className="py-2 px-3 border-b">1</td>
             <td className="py-2 px-3 border-b">2025-07-10</td>
             <td className="py-2 px-3 border-b">City Blood Camp</td>

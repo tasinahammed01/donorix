@@ -4,10 +4,12 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
+import type { User as FirebaseUser } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import auth from "../firebase/firebase.init";
 
-// Define user interface
+// ----- Interfaces -----
 interface User {
   uid: string;
   email: string;
@@ -16,38 +18,41 @@ interface User {
   totalDonated?: number;
 }
 
-// Define auth context interface
 interface AuthContextType {
   user: User | null;
+  loading: boolean;
   createUser: (email: string, password: string) => Promise<any>;
   signInUser: (email: string, password: string) => Promise<any>;
   signOutUser: () => Promise<void>;
-  loading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-import auth from "../firebase/firebase.init";
-
+// ----- AuthProvider -----
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Fetch user details from backend
-  const fetchUserDetails = async (firebaseUser: any) => {
+  const fetchUserDetails = async (firebaseUser: FirebaseUser) => {
     try {
-      const response = await fetch(`http://localhost:5000/users?email=${firebaseUser?.email}`);
+      const response = await fetch(
+        `http://localhost:5000/users?email=${firebaseUser.email}`
+      );
       if (response.ok) {
         const users = await response.json();
         const userData = users.find((u: any) => u.email === firebaseUser.email);
         if (userData) {
-          setUser({
+          const formattedUser: User = {
             uid: firebaseUser.uid,
-            email: firebaseUser.email,
+            email: firebaseUser.email!,
             role: userData.role,
             name: userData.name,
-            totalDonated: userData.totalDonated
-          });
+            totalDonated: userData.totalDonated,
+          };
+          setUser(formattedUser);
+          // Optional: persist in localStorage
+          localStorage.setItem("user", JSON.stringify(formattedUser));
         }
       }
     } catch (error) {
@@ -56,48 +61,46 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Create User
-  interface CreateUserFn {
-    (email: string, password: string): Promise<
-      import("firebase/auth").UserCredential
-    >;
-  }
-
-  const createUser: CreateUserFn = (email, password) => {
+  const createUser = (email: string, password: string) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
   // Sign In
   const signInUser = async (email: string, password: string) => {
-    return signInWithEmailAndPassword(auth, email, password);
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    // Firebase observer will handle setUser
+    return credential;
   };
 
-  // Observer
+  // Sign Out
+  const signOutUser = async () => {
+    await signOut(auth);
+    setUser(null);
+    localStorage.removeItem("user");
+  };
+
+  // Firebase auth observer
   useEffect(() => {
-    const unSubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        console.log("User logged in");
         await fetchUserDetails(firebaseUser);
       } else {
         setUser(null);
+        localStorage.removeItem("user");
       }
       setLoading(false);
     });
 
-    return () => unSubscribe();
+    return () => unsubscribe();
   }, []);
 
-  // SignOut
-  const signOutUser = async () => {
-    setUser(null);
-    return signOut(auth);
-  };
-
+  // ----- Context Value -----
   const authInfo: AuthContextType = {
+    user,
+    loading,
     createUser,
     signInUser,
-    user,
     signOutUser,
-    loading,
   };
 
   return (

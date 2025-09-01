@@ -13,6 +13,23 @@ interface User {
   profileImage?: string;
   role: string;
   createdAt?: string;
+  donations: {
+    bloodGroup: string;
+    lastDonationDate: string;
+    weight: string;
+    height: string;
+    bmi: string;
+    isEligible: boolean;
+    nextDonationDate: string;
+    age: number; // Added age field
+  };
+  achievements: string[];
+  level: {
+    current: number;
+    xp: number;
+    nextLevelXp: number;
+    levelBadge: string;
+  };
 }
 
 const DonorProfile = () => {
@@ -22,8 +39,6 @@ const DonorProfile = () => {
   const [error, setError] = useState<string>("");
   const [fetchUsers, setFetchUsers] = useState<User[]>([]);
   const [admin, setAdmin] = useState<User | null>(null);
-
-  console.log(admin?.profileImage);
 
   // Fetch all users
   useEffect(() => {
@@ -114,7 +129,7 @@ const DonorProfile = () => {
   if (!admin) {
     return (
       <div className="text-center text-gray-400 mt-10 font-semibold">
-        Admin not found
+        Donor not found
       </div>
     );
   }
@@ -172,6 +187,56 @@ const DonorProfile = () => {
                 ? new Date(admin.createdAt).toLocaleDateString()
                 : "-"}
             </p>
+          </div>
+
+          {/* Donor Info */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">Blood Group</h2>
+            <p className="text-gray-400">{admin.donations.bloodGroup}</p>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">
+              Last Donation
+            </h2>
+            <p className="text-gray-400">{admin.donations.lastDonationDate}</p>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">Eligibility</h2>
+            <p className="text-gray-400">
+              {admin.donations.isEligible ? "Eligible" : "Not Eligible"}
+            </p>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">
+              Next Donation
+            </h2>
+            <p className="text-gray-400">{admin.donations.nextDonationDate}</p>
+          </div>
+
+          {/* Health Info */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">Weight</h2>
+            <p className="text-gray-400">{admin.donations.weight} kg</p>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">Height</h2>
+            <p className="text-gray-400">{admin.donations.height} cm</p>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">BMI</h2>
+            <p className="text-gray-400">{admin.donations.bmi}</p>
+          </div>
+
+          {/* Age Info */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">Age</h2>
+            <p className="text-gray-400">{admin.donations.age} years</p>
+          </div>
+
+          {/* Donor Level Info */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">Level</h2>
+            <p className="text-gray-400">{admin.level.levelBadge}</p>
           </div>
         </div>
       </div>
