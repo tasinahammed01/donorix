@@ -33,7 +33,8 @@ interface User {
 }
 
 const RecipientProfile = () => {
-  const { user } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user;
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -47,8 +48,9 @@ const RecipientProfile = () => {
         setLoading(true);
         const response = await axios.get("https://donorix-backend-1.onrender.com/users");
         setFetchUsers(response.data);
-      } catch (err: any) {
-        setError(err.message || "Something went wrong!");
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Something went wrong!";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -81,6 +83,9 @@ const RecipientProfile = () => {
       if (!confirmation.isConfirmed) return;
 
       // Delete the image from the backend
+      if (!recipient) {
+        throw new Error("Recipient not found");
+      }
       await axios.delete(
         `https://donorix-backend-1.onrender.com/users/${recipient._id}/profile-image`
       );
@@ -88,7 +93,7 @@ const RecipientProfile = () => {
       // Update the state to remove the profile image
       setRecipient((prevRecipient) => {
         if (prevRecipient) {
-          return { ...prevRecipient, profileImage: null };
+          return { ...prevRecipient, profileImage: undefined };
         }
         return prevRecipient;
       });
@@ -100,11 +105,12 @@ const RecipientProfile = () => {
         icon: "success",
         confirmButtonText: "Okay",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Show error message if something goes wrong
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong while deleting the image!";
       Swal.fire({
         title: "Error!",
-        text: err.message || "Something went wrong while deleting the image!",
+        text: errorMessage,
         icon: "error",
         confirmButtonText: "Try Again",
       });

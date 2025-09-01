@@ -309,7 +309,15 @@ const AdminProfileUpdate = () => {
 export default AdminProfileUpdate;
 
 // Reusable components
-const InputField = ({ label, name, value, type = "text", onChange }: any) => (
+interface InputFieldProps {
+  label: string;
+  name: string;
+  value: string;
+  type?: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+}
+
+const InputField = ({ label, name, value, type = "text", onChange }: InputFieldProps) => (
   <div>
     <label className="block text-sm font-semibold mb-1">{label}</label>
     <input
@@ -322,7 +330,15 @@ const InputField = ({ label, name, value, type = "text", onChange }: any) => (
   </div>
 );
 
-const SelectField = ({ label, name, value, options, onChange }: any) => (
+interface SelectFieldProps {
+  label: string;
+  name: string;
+  value: string;
+  options: string[];
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+}
+
+const SelectField = ({ label, name, value, options, onChange }: SelectFieldProps) => (
   <div>
     <label className="block text-sm font-semibold mb-1">{label}</label>
     <select

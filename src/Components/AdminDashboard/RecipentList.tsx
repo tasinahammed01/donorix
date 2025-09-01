@@ -26,8 +26,9 @@ const RecipientList = () => {
           (user: Recipient) => user.role.toLowerCase() === "recipient"
         );
         setRecipients(recipientOnly);
-      } catch (err: any) {
-        setError(err.message || "Something went wrong!");
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Something went wrong!";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

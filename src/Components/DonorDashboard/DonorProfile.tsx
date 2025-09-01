@@ -33,7 +33,8 @@ interface User {
 }
 
 const DonorProfile = () => {
-  const { user } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user;
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -47,8 +48,9 @@ const DonorProfile = () => {
         setLoading(true);
         const response = await axios.get("https://donorix-backend-1.onrender.com/users");
         setFetchUsers(response.data);
-      } catch (err: any) {
-        setError(err.message || "Something went wrong!");
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Something went wrong!";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -80,6 +82,9 @@ const DonorProfile = () => {
       if (!confirmation.isConfirmed) return;
 
       // Delete the image from the backend
+      if (!admin) {
+        throw new Error("Admin not found");
+      }
       await axios.delete(
         `https://donorix-backend-1.onrender.com/users/${admin._id}/profile-image`
       );
@@ -87,7 +92,7 @@ const DonorProfile = () => {
       // Update the state to remove the profile image
       setAdmin((prevAdmin) => {
         if (prevAdmin) {
-          return { ...prevAdmin, profileImage: null };
+          return { ...prevAdmin, profileImage: undefined };
         }
         return prevAdmin;
       });
@@ -99,11 +104,12 @@ const DonorProfile = () => {
         icon: "success",
         confirmButtonText: "Okay",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Show error message if something goes wrong
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong while deleting the image!";
       Swal.fire({
         title: "Error!",
-        text: err.message || "Something went wrong while deleting the image!",
+        text: errorMessage,
         icon: "error",
         confirmButtonText: "Try Again",
       });

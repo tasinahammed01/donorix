@@ -41,7 +41,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       );
       if (response.ok) {
         const users = await response.json();
-        const userData = users.find((u: any) => u.email === firebaseUser.email);
+        const userData = users.find((u: { email: string; role: string; name: string; totalDonated?: number }) => u.email === firebaseUser.email);
         if (userData) {
           const formattedUser: User = {
             uid: firebaseUser.uid,

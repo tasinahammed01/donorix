@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useCallback } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 import { AuthContext } from "../providers/AuthProvider";
 
@@ -11,7 +11,7 @@ const Header = () => {
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       if (auth?.signOutUser) {
         await auth.signOutUser();
@@ -21,7 +21,7 @@ const Header = () => {
     } catch (error) {
       console.error("Logout failed:", error);
     }
-  };
+  }, [auth, navigate]);
 
   // Update navLinks whenever `user` changes
   useEffect(() => {
@@ -65,7 +65,7 @@ const Header = () => {
 
       setNavLinks(links);
     }
-  }, [auth?.user, auth?.signOutUser]);
+  }, [auth?.user, handleLogout]);
 
   // Show loading state while auth is initializing
   if (auth?.loading) {

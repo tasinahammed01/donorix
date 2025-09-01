@@ -26,8 +26,9 @@ const DonorList = () => {
           (user: Donor) => user.role.toLowerCase() === "donor"
         );
         setDonors(donorOnly);
-      } catch (err: any) {
-        setError(err.message || "Something went wrong!");
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Something went wrong!";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -51,7 +52,7 @@ const DonorList = () => {
         await axios.delete(`https://donorix-backend-1.onrender.com/users/${id}`);
         setDonors(donors.filter((donor) => donor._id !== id));
         Swal.fire("Deleted!", "Donor has been deleted.", "success");
-      } catch (err) {
+      } catch {
         Swal.fire("Error!", "Failed to delete donor.", "error");
       }
     }
@@ -77,7 +78,7 @@ const DonorList = () => {
         `Donor has been ${action === "suspend" ? "suspended" : "unsuspended"}.`,
         "success"
       );
-    } catch (err) {
+    } catch {
       Swal.fire("Error!", "Failed to update donor status.", "error");
     }
   };
@@ -89,7 +90,7 @@ const DonorList = () => {
         prev.map((donor) => (donor._id === id ? { ...donor, role } : donor))
       );
       Swal.fire("Success!", `Role updated to ${role}`, "success");
-    } catch (err) {
+    } catch {
       Swal.fire("Error!", "Failed to update role.", "error");
     }
   };

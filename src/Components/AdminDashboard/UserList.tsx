@@ -24,8 +24,9 @@ const UserList = () => {
         setLoading(true);
         const response = await axios.get("https://donorix-backend-1.onrender.com/users");
         setUsers(response.data);
-      } catch (err: any) {
-        setError(err.message || "Something went wrong!");
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Something went wrong!";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
