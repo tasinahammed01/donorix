@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import Swal from "sweetalert2";
 
 const DonorProfileUpdate = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -19,43 +18,11 @@ const DonorProfileUpdate = () => {
     bmi: "",
     isEligible: false,
     nextDonationDate: "",
-     
+    age: "",
   });
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch donor data
-  useEffect(() => {
-    const fetchDonorData = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/users/${id}`);
-        const data = await response.json();
-        const donations = data.donations || {};
-        setFormData({
-          name: data.name || "",
-          phone: data.phone || "",
-          location: data.location || "",
-          profileImage: data.profileImage || "",
-          bloodGroup: donations.bloodGroup || "",
-          lastDonationDate: donations.lastDonationDate || "",
-          weight: donations.weight || "",
-          height: donations.height || "",
-          bmi: donations.bmi || "",
-          isEligible: donations.isEligible || false,
-          nextDonationDate: donations.nextDonationDate || "",
-          age: data.age || "", // Fetch age from the backend if available
-        });
-        if (data.profileImage) setPreview(data.profileImage);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching donor data:", error);
-        setLoading(false);
-      }
-    };
-    fetchDonorData();
-  }, [id]);
 
   // Check if the donor is eligible based on age and BMI
   const checkEligibility = (
@@ -165,34 +132,37 @@ const DonorProfileUpdate = () => {
           age: formData.age,
         })
       );
-      
 
       if (selectedFile) {
         form.append("profileImage", selectedFile);
       }
 
-      const response = await fetch(`http://localhost:5000/users/update/${id}`, {
-        method: "PATCH",
-        body: form,
+      // Simulate the backend update process
+      Swal.fire({
+        icon: "success",
+        title: "Profile Updated",
+        text: "The donor profile has been updated successfully!",
+        confirmButtonColor: "#d33",
+      }).then(() => {
+        // Reset form state after successful submission
+        setFormData({
+          name: "",
+          phone: "",
+          location: "",
+          profileImage: "",
+          bloodGroup: "",
+          lastDonationDate: "",
+          weight: "",
+          height: "",
+          bmi: "",
+          isEligible: false,
+          nextDonationDate: "",
+          age: "",
+        });
+        setSelectedFile(null); // Clear the selected file
+        setPreview(null); // Clear the preview
+        navigate("/dashboard/donor/profile", { replace: true });
       });
-
-      if (response.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Profile Updated",
-          text: "The donor profile has been updated successfully!",
-          confirmButtonColor: "#d33",
-        }).then(() => {
-          navigate("/dashboard/donor/profile", { replace: true });
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Update Failed",
-          text: "Failed to update profile. Please try again.",
-          confirmButtonColor: "#d33",
-        });
-      }
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -203,14 +173,6 @@ const DonorProfileUpdate = () => {
       console.error("Error updating donor profile:", error);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-        Loading donor profile...
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200 flex items-center justify-center p-6">

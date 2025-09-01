@@ -13,17 +13,32 @@ interface User {
   profileImage?: string;
   role: string;
   createdAt?: string;
+  donations: {
+    bloodGroup: string;
+    lastDonationDate: string;
+    weight: string;
+    height: string;
+    bmi: string;
+    isEligible: boolean;
+    nextDonationDate: string;
+    age: number; // Added age field
+  };
+  achievements: string[];
+  level: {
+    current: number;
+    xp: number;
+    nextLevelXp: number;
+    levelBadge: string;
+  };
 }
 
-const RecipentProfile = () => {
+const RecipientProfile = () => {
   const { user } = useContext(AuthContext);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [fetchUsers, setFetchUsers] = useState<User[]>([]);
-  const [admin, setAdmin] = useState<User | null>(null);
-
-  console.log(admin?.profileImage);
+  const [recipient, setRecipient] = useState<User | null>(null);
 
   // Fetch all users
   useEffect(() => {
@@ -41,11 +56,12 @@ const RecipentProfile = () => {
     fetchAllUsers();
   }, []);
 
-  // Find logged-in admin
+  // Find logged-in recipient
   useEffect(() => {
     if (fetchUsers.length > 0 && user) {
-      const adminUser = fetchUsers.find((u) => u.email === user.email) || null;
-      setAdmin(adminUser);
+      const recipientUser =
+        fetchUsers.find((u) => u.email === user.email) || null;
+      setRecipient(recipientUser);
     }
   }, [fetchUsers, user]);
 
@@ -66,15 +82,15 @@ const RecipentProfile = () => {
 
       // Delete the image from the backend
       await axios.delete(
-        `http://localhost:5000/users/${admin._id}/profile-image`
+        `http://localhost:5000/users/${recipient._id}/profile-image`
       );
 
       // Update the state to remove the profile image
-      setAdmin((prevAdmin) => {
-        if (prevAdmin) {
-          return { ...prevAdmin, profileImage: null };
+      setRecipient((prevRecipient) => {
+        if (prevRecipient) {
+          return { ...prevRecipient, profileImage: null };
         }
-        return prevAdmin;
+        return prevRecipient;
       });
 
       // Show success message
@@ -111,10 +127,10 @@ const RecipentProfile = () => {
     );
   }
 
-  if (!admin) {
+  if (!recipient) {
     return (
       <div className="text-center text-gray-400 mt-10 font-semibold">
-        Admin not found
+        Recipient not found
       </div>
     );
   }
@@ -123,7 +139,7 @@ const RecipentProfile = () => {
     <div className="min-h-screen bg-gray-900 text-gray-200 flex items-center justify-center p-6">
       <div className="w-full max-w-3xl bg-gray-800 rounded-2xl shadow-xl p-8 relative">
         {/* Edit Button */}
-        <Link to={`/dashboard/donor/profile/update/${admin._id}`}>
+        <Link to={`/dashboard/recipient/profile/update/${recipient._id}`}>
           <button className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl transition">
             Edit Profile
           </button>
@@ -132,14 +148,14 @@ const RecipentProfile = () => {
         {/* Profile Header Section */}
         <div className="flex flex-col md:flex-row items-center gap-6">
           <img
-            src={`http://localhost:5000${admin?.profileImage}`}
+            src={`http://localhost:5000${recipient?.profileImage}`}
             alt="Profile"
             style={{ width: "120px", height: "120px", borderRadius: "50%" }}
           />
 
           <div>
-            <h1 className="text-3xl font-bold">{admin.name}</h1>
-            <p className="text-red-400 text-lg">{admin.role}</p>
+            <h1 className="text-3xl font-bold">{recipient.name}</h1>
+            <p className="text-red-400 text-lg">{recipient.role}</p>
           </div>
 
           {/* Delete Image Button */}
@@ -155,23 +171,77 @@ const RecipentProfile = () => {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h2 className="text-lg font-semibold text-gray-300">Email</h2>
-            <p className="text-gray-400">{admin.email}</p>
+            <p className="text-gray-400">{recipient.email}</p>
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-300">Phone</h2>
-            <p className="text-gray-400">{admin.phone || "-"}</p>
+            <p className="text-gray-400">{recipient.phone || "-"}</p>
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-300">Location</h2>
-            <p className="text-gray-400">{admin.location || "-"}</p>
+            <p className="text-gray-400">{recipient.location || "-"}</p>
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-300">Joined</h2>
             <p className="text-gray-400">
-              {admin.createdAt
-                ? new Date(admin.createdAt).toLocaleDateString()
+              {recipient.createdAt
+                ? new Date(recipient.createdAt).toLocaleDateString()
                 : "-"}
             </p>
+          </div>
+
+          {/* Recipient Info */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">Blood Group</h2>
+            <p className="text-gray-400">{recipient.donations.bloodGroup}</p>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">
+              Last Donation
+            </h2>
+            <p className="text-gray-400">
+              {recipient.donations.lastDonationDate}
+            </p>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">Eligibility</h2>
+            <p className="text-gray-400">
+              {recipient.donations.isEligible ? "Eligible" : "Not Eligible"}
+            </p>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">
+              Next Donation
+            </h2>
+            <p className="text-gray-400">
+              {recipient.donations.nextDonationDate}
+            </p>
+          </div>
+
+          {/* Health Info */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">Weight</h2>
+            <p className="text-gray-400">{recipient.donations.weight} kg</p>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">Height</h2>
+            <p className="text-gray-400">{recipient.donations.height} cm</p>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">BMI</h2>
+            <p className="text-gray-400">{recipient.donations.bmi}</p>
+          </div>
+
+          {/* Age Info */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">Age</h2>
+            <p className="text-gray-400">{recipient.donations.age} years</p>
+          </div>
+
+          {/* Recipient Level Info */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-300">Level</h2>
+            <p className="text-gray-400">{recipient.level.levelBadge}</p>
           </div>
         </div>
       </div>
@@ -179,4 +249,4 @@ const RecipentProfile = () => {
   );
 };
 
-export default RecipentProfile;
+export default RecipientProfile;
