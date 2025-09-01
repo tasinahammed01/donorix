@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../providers/AuthProvider";
 import axios from "axios";
 import { Link } from "react-router";
+import Swal from "sweetalert2";
 
 interface User {
   _id: string;
@@ -21,6 +22,8 @@ const AdminProfile = () => {
   const [error, setError] = useState<string>("");
   const [fetchUsers, setFetchUsers] = useState<User[]>([]);
   const [admin, setAdmin] = useState<User | null>(null);
+
+  console.log(admin?.profileImage);
 
   // Fetch all users
   useEffect(() => {
@@ -45,6 +48,52 @@ const AdminProfile = () => {
       setAdmin(adminUser);
     }
   }, [fetchUsers, user]);
+
+  // handleDeleteImage function
+  const handleDeleteImage = async () => {
+    try {
+      const confirmation = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+      });
+
+      if (!confirmation.isConfirmed) return;
+
+      // Delete the image from the backend
+      await axios.delete(
+        `http://localhost:5000/users/${admin._id}/profile-image`
+      );
+
+      // Update the state to remove the profile image
+      setAdmin((prevAdmin) => {
+        if (prevAdmin) {
+          return { ...prevAdmin, profileImage: null };
+        }
+        return prevAdmin;
+      });
+
+      // Show success message
+      Swal.fire({
+        title: "Deleted!",
+        text: "Your profile image has been deleted.",
+        icon: "success",
+        confirmButtonText: "Okay",
+      });
+    } catch (err: any) {
+      // Show error message if something goes wrong
+      Swal.fire({
+        title: "Error!",
+        text: err.message || "Something went wrong while deleting the image!",
+        icon: "error",
+        confirmButtonText: "Try Again",
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -80,17 +129,26 @@ const AdminProfile = () => {
           </button>
         </Link>
 
-        {/* Profile Header */}
+        {/* Profile Header Section */}
         <div className="flex flex-col md:flex-row items-center gap-6">
           <img
-            src={admin.profileImage}
-            alt="Admin"
-            className="w-32 h-32 rounded-full border-4 border-red-500 object-cover"
+            src={`http://localhost:5000${admin?.profileImage}`}
+            alt="Profile"
+            style={{ width: "120px", height: "120px", borderRadius: "50%" }}
           />
+
           <div>
             <h1 className="text-3xl font-bold">{admin.name}</h1>
             <p className="text-red-400 text-lg">{admin.role}</p>
           </div>
+
+          {/* Delete Image Button */}
+          <button
+            onClick={handleDeleteImage}
+            className="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+          >
+            Delete Profile Image
+          </button>
         </div>
 
         {/* Profile Information */}

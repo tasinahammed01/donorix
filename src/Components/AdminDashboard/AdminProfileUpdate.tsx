@@ -21,6 +21,8 @@ const AdminProfileUpdate = () => {
     nextDonationDate: "",
   });
 
+  console.log(formData.profileImage);
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -126,13 +128,17 @@ const AdminProfileUpdate = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
-      const dataToSend = {
-        name: formData.name,
-        phone: formData.phone,
-        location: formData.location,
-        profileImage: formData.profileImage,
-        donations: {
+      const form = new FormData();
+      form.append("name", formData.name);
+      form.append("phone", formData.phone);
+      form.append("location", formData.location);
+
+      // Add donations as JSON string
+      form.append(
+        "donations",
+        JSON.stringify({
           bloodGroup: formData.bloodGroup,
           lastDonationDate: formData.lastDonationDate,
           weight: formData.weight,
@@ -140,13 +146,17 @@ const AdminProfileUpdate = () => {
           bmi: formData.bmi,
           isEligible: formData.isEligible,
           nextDonationDate: formData.nextDonationDate,
-        },
-      };
+        })
+      );
+
+      // Add image if selected
+      if (selectedFile) {
+        form.append("profileImage", selectedFile);
+      }
 
       const response = await fetch(`http://localhost:5000/users/update/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataToSend),
+        body: form,
       });
 
       if (response.ok) {
@@ -176,6 +186,7 @@ const AdminProfileUpdate = () => {
       console.error("Error updating profile:", error);
     }
   };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
