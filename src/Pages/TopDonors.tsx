@@ -11,14 +11,20 @@ interface User {
   lastDonationDate?: string;
   age?: number;
   bloodGroup?: string;
-  eligible?: boolean;
+  isEligible?: boolean;
+  donations?: {
+    age?: number;
+    bloodGroup?: string;
+    lastDonationDate?: string;
+  };
 }
 
 const TopDonors = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [user, setUser] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [bloodGroup, setBloodGroup] = useState("");
+  const [eligibility, setEligibility] = useState("");
 
   useEffect(() => {
     fetch("https://donorix-backend-1.onrender.com/users")
@@ -34,16 +40,48 @@ const TopDonors = () => {
       .catch((err) => console.error("Error fetching users:", err));
   }, []);
 
+  const filterData = (
+    search: string,
+    blood: string,
+    eligibleStatus: string
+  ) => {
+    let filtered = users.filter(
+      (user) =>
+        user.location?.toLowerCase().includes(search) ||
+        user.name.toLowerCase().includes(search)
+    );
+
+    if (blood) {
+      filtered = filtered.filter(
+        (user) =>
+          user.donations?.bloodGroup?.toLowerCase() === blood.toLowerCase()
+      );
+    }
+
+    if (eligibleStatus) {
+      const isEligible = eligibleStatus === "eligible";
+      filtered = filtered.filter((user) => user.donations.isEligible === isEligible);
+    }
+
+    setFilteredUsers(filtered);
+  };
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase();
     setSearchTerm(value);
-    setFilteredUsers(
-      users.filter(
-        (user) =>
-          user.location?.toLowerCase().includes(value) ||
-          user.name.toLowerCase().includes(value)
-      )
-    );
+    filterData(value, bloodGroup, eligibility);
+  };
+
+  const handleBloodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setBloodGroup(value);
+    filterData(searchTerm, value, eligibility);
+  };
+
+  const handleEligibilityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setEligibility(value);
+    filterData(searchTerm, bloodGroup, value);
   };
 
   return (
@@ -51,14 +89,40 @@ const TopDonors = () => {
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-white">Top Donors</h1>
 
-        <div className="mb-8">
+        <div className="mb-8 flex flex-col md:flex-row gap-4">
           <input
             type="text"
             placeholder="Search by location or name..."
             value={searchTerm}
             onChange={handleSearch}
-            className="w-full md:w-1/2 px-4 py-2 rounded-lg bg-[#1e1e1e] text-gray-200 border border-gray-600 focus:border-teal-500 focus:outline-none"
+            className="w-full md:w-1/3 px-4 py-2 rounded-lg bg-[#1e1e1e] text-gray-200 border border-gray-600 focus:border-teal-500 focus:outline-none"
           />
+
+          <select
+            value={bloodGroup}
+            onChange={handleBloodChange}
+            className="w-full md:w-1/4 px-4 py-2 rounded-lg bg-[#1e1e1e] text-gray-200 border border-gray-600 focus:border-teal-500 focus:outline-none"
+          >
+            <option value="">All Blood Groups</option>
+            <option value="a+">A+</option>
+            <option value="a-">A-</option>
+            <option value="b+">B+</option>
+            <option value="b-">B-</option>
+            <option value="ab+">AB+</option>
+            <option value="ab-">AB-</option>
+            <option value="o+">O+</option>
+            <option value="o-">O-</option>
+          </select>
+
+          <select
+            value={eligibility}
+            onChange={handleEligibilityChange}
+            className="w-full md:w-1/4 px-4 py-2 rounded-lg bg-[#1e1e1e] text-gray-200 border border-gray-600 focus:border-teal-500 focus:outline-none"
+          >
+            <option value="">All Eligibility</option>
+            <option value="eligible">Eligible</option>
+            <option value="notEligible">Not Eligible</option>
+          </select>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -80,14 +144,14 @@ const TopDonors = () => {
                   </p>
                 )}
 
-                {user.donations.age !== undefined && (
+                {user.donations?.age !== undefined && (
                   <p className="text-sm mt-1 text-gray-400">
                     <span className="font-medium text-teal-400">Age:</span>{" "}
                     {user.donations.age} years
                   </p>
                 )}
 
-                {user.donations.bloodGroup && (
+                {user.donations?.bloodGroup && (
                   <p className="text-sm mt-1 text-gray-400">
                     <span className="font-medium text-teal-400">
                       Blood Group:
@@ -112,12 +176,14 @@ const TopDonors = () => {
                   </p>
                 )}
 
-                {user.donations.lastDonationDate && (
+                {user.donations?.lastDonationDate && (
                   <p className="text-sm mt-1 text-gray-400">
                     <span className="font-medium text-teal-400">
                       Last Donation:
                     </span>{" "}
-                    {new Date(user.donations.lastDonationDate).toLocaleDateString()}
+                    {new Date(
+                      user.donations.lastDonationDate
+                    ).toLocaleDateString()}
                   </p>
                 )}
 
@@ -125,7 +191,7 @@ const TopDonors = () => {
                   <span className="font-medium text-teal-400">
                     Eligibility:
                   </span>{" "}
-                  {user.eligible ? (
+                  {user.donations.isEligible ? (
                     <span className="text-green-400">Eligible</span>
                   ) : (
                     <span className="text-red-400">Not Eligible</span>
