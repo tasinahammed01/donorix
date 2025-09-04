@@ -76,7 +76,7 @@ const RecipientList = () => {
     if (result.isConfirmed) {
       try {
         const response = await axios.patch(
-          `https://donorix-backend-1.onrender.com/users/${id}/suspend`,
+          `https://donorix-backend-1.onrender.com/users/${id}`,
           { action }
         );
         setRecipients(
@@ -99,7 +99,7 @@ const RecipientList = () => {
   const handleRoleChange = async (id: string, newRole: string) => {
     try {
       const response = await axios.patch(
-        `https://donorix-backend-1.onrender.com/users/${id}/role`,
+        `https://donorix-backend-1.onrender.com/users/${id}`,
         {
           role: newRole,
         }

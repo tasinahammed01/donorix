@@ -41,6 +41,7 @@ const AdminProfile = () => {
   const [fetchUsers, setFetchUsers] = useState<User[]>([]);
   const [admin, setAdmin] = useState<User | null>(null);
 
+
   // Fetch all users
   useEffect(() => {
     const fetchAllUsers = async () => {
@@ -153,7 +154,7 @@ const AdminProfile = () => {
         {/* Profile Header Section */}
         <div className="flex flex-col md:flex-row items-center gap-6">
           <img
-            src={`http://localhost:5000${admin?.profileImage}`}
+            src={`https://donorix-backend-1.onrender.com/users/${admin?.profileImage}`}
             alt="Profile"
             style={{ width: "120px", height: "120px", borderRadius: "50%" }}
           />

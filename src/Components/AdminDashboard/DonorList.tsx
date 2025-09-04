@@ -60,7 +60,7 @@ const DonorList = () => {
 
   const handleSuspend = async (id: string, action: "suspend" | "unsuspend") => {
     try {
-      await axios.patch(`https://donorix-backend-1.onrender.com/users/${id}/suspend`, {
+      await axios.patch(`https://donorix-backend-1.onrender.com/users/${id}`, {
         action,
       });
       setDonors((prev) =>
@@ -85,7 +85,7 @@ const DonorList = () => {
 
   const handleRoleChange = async (id: string, role: string) => {
     try {
-      await axios.patch(`https://donorix-backend-1.onrender.com/users/${id}/role`, { role });
+      await axios.patch(`https://donorix-backend-1.onrender.com/users/${id}`, { role });
       setDonors((prev) =>
         prev.map((donor) => (donor._id === id ? { ...donor, role } : donor))
       );
